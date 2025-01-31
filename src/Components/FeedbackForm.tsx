@@ -407,7 +407,7 @@ const FeedbackForm: React.FC = () => {
                               backgroundColor: isDarkMode ? "#000" : "#fff", // Scrollbar track color
                             },
                           },
-                        },                        
+                        },
                       }}
                     >
                       {/* Placeholder MenuItem */}
@@ -429,6 +429,16 @@ const FeedbackForm: React.FC = () => {
                                 ? (formData[category as keyof typeof formData] as string).split(", ").includes(choice)
                                 : false
                             }
+                            sx={{
+                              // Checkbox styling in dark and light mode
+                              color: isDarkMode ? "#fff" : "#000", // Default checkbox color
+                              "&.Mui-checked": {
+                                color: isDarkMode ? "#fff" : "#000", // Checkbox color when checked
+                              },
+                              "&.MuiCheckbox-root": {
+                                borderColor: isDarkMode ? "#fff" : "#000", // Border color of checkbox
+                              },
+                            }}
                           />
                           <ListItemText
                             primary={choice}
@@ -445,6 +455,7 @@ const FeedbackForm: React.FC = () => {
                   </FormControl>
                 </div>
               ))}
+
 
               <StyledTextFieldNoChanges
                 label="Your Feedback"

@@ -17,13 +17,19 @@ import {
   Grid,
   Switch,
   IconButton,
+  ListItemText,
+  FormControl,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { Send as SendIcon, CheckCircle as CheckCircleIcon, DarkMode, LightMode } from "@mui/icons-material";
-import StyledCard from '../Styles/StyleCard';
-import { StyledTextField, StyledTextFieldNoChanges } from '../Styles/StyledTextField';
-import FormData from '../InterFaces/FormData';
+import StyledCard from '../Styles/StyleCard.ts';
+import { StyledTextFieldNoChanges } from '../Styles/StyledTextField.ts';
+import FormData from '../InterFaces/FormData.ts';
+import options from '../InterFaces/AnswerOptions.ts';
+import { questionLabels, questionPlaceholders } from '../InterFaces/QuestionLabels.ts';
 
 const FeedbackForm: React.FC = () => {
   const theme = useTheme();
@@ -47,6 +53,11 @@ const FeedbackForm: React.FC = () => {
     localStorage.setItem('darkMode', String(newMode));
   };
 
+  const handleSelectChange = (category: string, selectedValues: any) => {
+    const selectedString = Array.isArray(selectedValues) ? selectedValues.join(", ") : selectedValues;
+    setFormData((prev) => ({ ...prev, [category]: selectedString }));
+  };
+
   const initFormDataState = {
     name: "",
     email: "",
@@ -66,7 +77,7 @@ const FeedbackForm: React.FC = () => {
     satisfaction: 50,
     subscribe: false,
   };
-  
+
   const [formData, setFormData] = useState<FormData>(initFormDataState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -174,10 +185,10 @@ const FeedbackForm: React.FC = () => {
         />
       </Box>
 
-      <StyledCard 
-        sx={{ 
-          width: "100%", 
-          p: { xs: 4, sm: 4 }, 
+      <StyledCard
+        sx={{
+          width: "100%",
+          p: { xs: 4, sm: 4 },
           backgroundColor: isDarkMode ? '#1a1a1a' : '#f5f5f5',
           color: isDarkMode ? '#ffffff' : 'inherit',
         }}
@@ -249,6 +260,18 @@ const FeedbackForm: React.FC = () => {
                       padding: "0 10px",
                       fontSize: "14px",
                     }}
+                    numberInputProps={{
+                      style: {
+                        width: '100%',
+                        height: '50px',
+                        borderRadius: '4px',
+                        backgroundColor: isDarkMode ? '#333' : '#f5f5f5',
+                        color: isDarkMode ? '#fff' : '#000',
+                        border: '1px solid #ccc',
+                        padding: '0 10px',
+                        fontSize: '14px',
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -281,7 +304,12 @@ const FeedbackForm: React.FC = () => {
               <Typography
                 variant="subtitle1"
                 gutterBottom
-                sx={{ fontSize: { xs: "14px", md: "16px" } }}
+                sx={{
+                  whiteSpace: "normal",
+                  wordBreak: "break-word",
+                  fontSize: { xs: "14px", md: "16px" },
+                  fontWeight: "bold",
+                }}
               >
                 How important is the ability to connect with people from around the world to you?
               </Typography>
@@ -295,213 +323,66 @@ const FeedbackForm: React.FC = () => {
                 <FormControlLabel value="High" control={<Radio />} label="High" />
               </RadioGroup>
 
+              {Object.entries(options).map(([category, choices]) => (
+                <div key={category} style={{ marginBottom: "20px" }}>
+                  {/* Question Title */}
+                  <Typography
+                    component="span"
+                    sx={{
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                      fontSize: { xs: "14px", md: "16px" },
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {questionLabels[category as keyof typeof questionLabels]}
+                  </Typography>
+
+                  {/* Dropdown for Multiple Selection */}
+                  <FormControl fullWidth variant="outlined" sx={{ mt: 1 }}>
+                    <Select
+                      multiple
+                      displayEmpty
+                      value={
+                        formData[category as keyof typeof formData]
+                          ? (formData[category as keyof typeof formData] as string).split(", ").filter(Boolean)
+                          : []
+                      }
+                      onChange={(e) => handleSelectChange(category as keyof typeof formData, e.target.value)}
+                      renderValue={(selected) =>
+                        (selected as string[]).length > 0 ? selected.join(", ") : questionPlaceholders[category as keyof typeof questionPlaceholders]
+                      }
+                    >
+                      {/* Placeholder MenuItem */}
+                      <MenuItem disabled value="">
+                        <em>{questionPlaceholders[category as keyof typeof questionPlaceholders]}</em>
+                      </MenuItem>
+                      {choices.map((choice) => (
+                        <MenuItem key={choice} value={choice}>
+                          <Checkbox
+                            checked={
+                              formData[category as keyof typeof formData]
+                                ? (formData[category as keyof typeof formData] as string).split(", ").includes(choice)
+                                : false
+                            }
+                          />
+                          <ListItemText primary={choice} />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+              ))}
+
               <StyledTextFieldNoChanges
                 label="Your Feedback"
-                placeholder="Tell us what you think"
+                placeholder="Any additional comments, features or suggestions that you believe would improve your experience"
                 value={formData.feedback}
                 onChange={(e) => setFormData({ ...formData, feedback: e.target.value })}
                 required
                 fullWidth
                 multiline
                 rows={4}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    What features do you think are most important for an online community platform?
-                  </Typography>
-                }
-                placeholder="E.g. instant messaging, voice/video chat, community discussion, content sharing, etc."
-                value={formData.communityFeatures}
-                onChange={(e) => setFormData({ ...formData, communityFeatures: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    What kind of communities or groups would you like to be part of?
-                  </Typography>
-                }
-                placeholder="E.g., Artificial Intelligence, Software Engineering, Cyber Security, Blockchain Development, etc."
-                value={formData.communities}
-                onChange={(e) => setFormData({ ...formData, communities: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    How would you like to interact with your friends or colleagues on this platform?
-                  </Typography>
-                }
-                placeholder="E.g., One-on-one Chats, Video Calls, Groups, Forums, etc."
-                value={formData.interactionFeatures}
-                onChange={(e) => setFormData({ ...formData, interactionFeatures: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    What kind of Privacy or control options would you expect?
-                  </Typography>
-                }
-                placeholder="E.g., Private conversations, Control over notifications, Anonymous Interactions, Conversation Availability once you accept request, etc."
-                value={formData.privacyFeatures}
-                onChange={(e) => setFormData({ ...formData, privacyFeatures: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    What user experience elements are important to you when using social media?
-                  </Typography>
-                }
-                placeholder="E.g., Easy Navigation, Fast Loading times, Customizable themes, Accessible and Intuitive design, etc."
-                value={formData.uxFeatures}
-                onChange={(e) => setFormData({ ...formData, uxFeatures: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    What kind of content would you like to create, share or engage with on the platform?
-                  </Typography>
-                }
-                placeholder="E.g., Text posts, Images, Videos, Live streaming, Discussions, Tutorials and Mentoring sessions, etc."
-                value={formData.contentConsumption}
-                onChange={(e) => setFormData({ ...formData, contentConsumption: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    Would you like to see features that help in organizing or managing communities or groups?
-                  </Typography>
-                }
-                placeholder="E.g., Event Scheduling, Admin tools, Moderation Features, Role Assignments and analytics, etc."
-                value={formData.organizingFeatures}
-                onChange={(e) => setFormData({ ...formData, organizingFeatures: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    What motivates you to stay active and engaged in a community?
-                  </Typography>
-                }
-                placeholder="E.g., Rewards, Recognition, Challenges, Meaningful Interactions, etc."
-                value={formData.motivations}
-                onChange={(e) => setFormData({ ...formData, motivations: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
-                variant="outlined"
-              />
-
-              <StyledTextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{
-                      whiteSpace: "normal",
-                      wordBreak: "break-word",
-                      fontSize: { xs: "14px", md: "16px" },
-                    }}
-                  >
-                    Is there anything else you would like to see or expect from this platform?
-                  </Typography>
-                }
-                placeholder="Any additional comments, features or suggestions that you believe would improve your experience"
-                value={formData.additionalComments}
-                onChange={(e) => setFormData({ ...formData, additionalComments: e.target.value })}
-                fullWidth
-                multiline
-                rows={3}
                 variant="outlined"
               />
 

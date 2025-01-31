@@ -30,6 +30,7 @@ import { StyledTextFieldNoChanges } from '../Styles/StyledTextField.ts';
 import FormData from '../InterFaces/FormData.ts';
 import options from '../InterFaces/AnswerOptions.ts';
 import { questionLabels, questionPlaceholders } from '../InterFaces/QuestionLabels.ts';
+import FeaturesGrid from './FeaturesGrid.tsx';
 
 const FeedbackForm: React.FC = () => {
   const theme = useTheme();
@@ -73,7 +74,6 @@ const FeedbackForm: React.FC = () => {
     contentConsumption: "",
     organizingFeatures: "",
     motivations: "",
-    additionalComments: "",
     satisfaction: 50,
     subscribe: false,
   };
@@ -83,6 +83,7 @@ const FeedbackForm: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [progress, setProgress] = useState(0);
+  const [showFeatures, setShowFeatures] = useState(false);
 
   // Check if email has already been used
   const isEmailUsed = (email: string): boolean => {
@@ -134,7 +135,6 @@ const FeedbackForm: React.FC = () => {
         contentConsumption: formData.contentConsumption,
         organizingFeatures: formData.organizingFeatures,
         motivations: formData.motivations,
-        additionalComments: formData.additionalComments,
         satisfaction: formData.satisfaction,
         subscribe: formData.subscribe,
       };
@@ -146,6 +146,8 @@ const FeedbackForm: React.FC = () => {
       );
       setShowSuccess(true);
       setFormData(initFormDataState);
+      await new Promise((resolve) => setTimeout(resolve, 20000));
+      setShowFeatures(true);
     } catch (error) {
       console.error("Error submitting feedback:", error);
       alert("An error occurred while submitting feedback. Please try again.");
@@ -155,6 +157,8 @@ const FeedbackForm: React.FC = () => {
   };
 
   return (
+    <>
+    {!showFeatures ? (
     <Container maxWidth="md" sx={{ minHeight: "100vh", display: "flex", alignItems: "center", py: { xs: 4, md: 8 } }}>
       <Box
         sx={{
@@ -574,7 +578,8 @@ const FeedbackForm: React.FC = () => {
           </form>
         </Box>
       </StyledCard>
-    </Container>
+    </Container>) : (<FeaturesGrid onClose={() => setShowFeatures(false)} />)}
+    </>
   );
 };
 

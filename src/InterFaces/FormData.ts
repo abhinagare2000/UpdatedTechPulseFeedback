@@ -14,7 +14,6 @@ export default interface FormData {
   contentConsumption: string;
   organizingFeatures: string;
   motivations: string;
-  additionalComments: string;
   satisfaction: number;
   subscribe: boolean;
 }

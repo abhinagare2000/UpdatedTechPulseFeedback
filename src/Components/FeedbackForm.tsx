@@ -339,7 +339,25 @@ const FeedbackForm: React.FC = () => {
                   </Typography>
 
                   {/* Dropdown for Multiple Selection */}
-                  <FormControl fullWidth variant="outlined" sx={{ mt: 1 }}>
+                  <FormControl
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      mt: 1,
+                      "& .MuiSelect-select": {
+                        whiteSpace: "normal",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "block",
+                        height: "auto",
+                        minHeight: "unset",
+                        padding: "8px 14px",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        height: "auto",
+                      },
+                    }}
+                  >
                     <Select
                       multiple
                       displayEmpty
@@ -349,16 +367,62 @@ const FeedbackForm: React.FC = () => {
                           : []
                       }
                       onChange={(e) => handleSelectChange(category as keyof typeof formData, e.target.value)}
-                      renderValue={(selected) =>
-                        (selected as string[]).length > 0 ? selected.join(", ") : questionPlaceholders[category as keyof typeof questionPlaceholders]
-                      }
+                      renderValue={(selected) => {
+                        const selectedValues =
+                          (selected as string[]).length > 0
+                            ? (selected as string[]).join(", ")
+                            : questionPlaceholders[category as keyof typeof questionPlaceholders];
+                        return (
+                          <Typography
+                            sx={{
+                              whiteSpace: "normal",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {selectedValues}
+                          </Typography>
+                        );
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 300,
+                            backgroundColor: isDarkMode ? "#333" : "#fff", // Dark and Light mode styling
+                            color: isDarkMode ? "#fff" : "#000",
+                          },
+                        },
+                        MenuListProps: {
+                          sx: {
+                            "&::-webkit-scrollbar": {
+                              width: "8px",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                              backgroundColor: isDarkMode ? "#fff" : "#000", // Scrollbar color
+                              borderRadius: "4px",
+                            },
+                            "&::-webkit-scrollbar-thumb:hover": {
+                              backgroundColor: isDarkMode ? "#ddd" : "#333", // Hover effect for scrollbar
+                            },
+                            "&::-webkit-scrollbar-track": {
+                              backgroundColor: isDarkMode ? "#000" : "#fff", // Scrollbar track color
+                            },
+                          },
+                        },                        
+                      }}
                     >
                       {/* Placeholder MenuItem */}
                       <MenuItem disabled value="">
                         <em>{questionPlaceholders[category as keyof typeof questionPlaceholders]}</em>
                       </MenuItem>
                       {choices.map((choice) => (
-                        <MenuItem key={choice} value={choice}>
+                        <MenuItem
+                          key={choice}
+                          value={choice}
+                          sx={{
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                          }}
+                        >
                           <Checkbox
                             checked={
                               formData[category as keyof typeof formData]
@@ -366,7 +430,15 @@ const FeedbackForm: React.FC = () => {
                                 : false
                             }
                           />
-                          <ListItemText primary={choice} />
+                          <ListItemText
+                            primary={choice}
+                            sx={{
+                              "& .MuiTypography-root": {
+                                whiteSpace: "normal",
+                                wordBreak: "break-word",
+                              },
+                            }}
+                          />
                         </MenuItem>
                       ))}
                     </Select>
